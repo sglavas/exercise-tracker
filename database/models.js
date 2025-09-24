@@ -16,6 +16,11 @@ const exerciseScehma = new mongoose.Schema({
         type: Number,
         required: true
     },
+    userId: {
+        type: String,
+        unique: true,
+        required: true
+    },
     date: String
 })
 

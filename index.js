@@ -4,7 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { createAndSaveUsername, retrieveUsername } = require('./database/mongoDB');
+const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise } = require('./database/mongoDB');
 
 // Basic configuration
 
@@ -75,6 +75,9 @@ app.post('/api/users/:_id/exercises', async (req, res) =>{
     res.json({error: "ID not found"})
     return;
   }
+
   console.log(userResult);
+
+  createaAndSaveExercise(id, description, duration, date);
 })
 
