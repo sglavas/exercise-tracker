@@ -4,6 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { createAndSaveUsername } = require('./database/mongoDB');
 
 // Basic configuration
 
@@ -43,9 +44,24 @@ const listener = app.listen(process.env.PORT || 3000, () => {
 // Get data from POST request
 
 // Specify /api/users route POST method
-app.post('/api/users', (req, res) =>{
+app.post('/api/users', async (req, res) =>{
+  // Get username from input
   const { username } = req.body;
-  console.log(username);
+
+  try{
+    // Add username to the database
+    let result = await createAndSaveUsername(username);
+
+    // Get database username and _id
+    const id = result["_id"];
+    const name = result.userName;
+
+    // Send response with username and database _id
+    res.json({"username": name, "_id": id});
+  }catch(error){
+    console.log(error.message);
+  }
+
 })
 
 // Specify /api/users/:_id/exercises route POST method
