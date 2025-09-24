@@ -4,7 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { createAndSaveUsername } = require('./database/mongoDB');
+const { createAndSaveUsername, retrieveUsername } = require('./database/mongoDB');
 
 // Basic configuration
 
@@ -65,10 +65,16 @@ app.post('/api/users', async (req, res) =>{
 })
 
 // Specify /api/users/:_id/exercises route POST method
-app.post('/api/users/:_id/exercises', (req, res) =>{
+app.post('/api/users/:_id/exercises', async (req, res) =>{
   const id = req.body[":_id"];
   const { description, duration, date } = req.body;
-  
-  console.log(id, description, duration, date);
+
+  // Query the database with the _id
+  let userResult = await retrieveUsername(id);
+  if(userResult === undefined){
+    res.json({error: "ID not found"})
+    return;
+  }
+  console.log(userResult);
 })
 

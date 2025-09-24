@@ -15,4 +15,15 @@ const createAndSaveUsername = async (user) => {
     }
 }
 
-module.exports = { createAndSaveUsername }
+const retrieveUsername = async (id) =>{
+    try{
+        // Query the database with the _id
+        let result = await User.findOne({ _id: id });
+
+        return result
+    }catch(error){
+        console.log(error.message);
+    }
+}
+
+module.exports = { createAndSaveUsername, retrieveUsername }
