@@ -18,7 +18,7 @@ const exerciseScehma = new mongoose.Schema({
     },
     userId: {
         type: String,
-        unique: true,
+        unique: false,
         required: true
     },
     date: String

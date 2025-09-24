@@ -29,22 +29,14 @@ const retrieveUsername = async (id) =>{
 
 const createaAndSaveExercise = async (id, description, duration, date) => {
     try{
-        // Check if user already has an exercise schedule
-        let findyByUserIdResult = await Exercise.findOne({ userId: id });
-
-        console.log(findyByUserIdResult);
-
-        // If the user doesn't have an exercise schedule
-        if(findyByUserIdResult === null){
-            // Create exercise document
-            const exerciseEntry =  new Exercise({ description: description, duration: duration, userId: id, date: date });
-            // Save document to the exercises cluster
-            let result = await exerciseEntry.save();
-            console.log(result);
-            return result;
-        }
+        // Create exercise document
+        const exerciseEntry =  new Exercise({ description: description, duration: duration, userId: id, date: date });
+        // Save document to the exercises cluster
+        let result = await exerciseEntry.save();
+        console.log(result);
+        return result;
     }catch(error){
-        console.log("The user does not have an exercise schedule")
+        console.log(error.message);
     }
 
 
