@@ -66,12 +66,23 @@ app.post('/api/users', async (req, res) =>{
 
 // Specify /api/users/:_id/exercises route POST method
 app.post('/api/users/:_id/exercises', async (req, res) =>{
+  // Get value from _id input
   const id = req.body[":_id"];
+  // Get values from description, duration and date inputs
   const { description, duration, date } = req.body;
+
+  // Check if the required input fields have values
+  if(!description || !duration || !date){
+    // If not, send error response
+    res.json({error: "Paths 'description', 'duration', and '_id' are required."})
+    return;
+  }
 
   // Query the database with the _id
   let userResult = await retrieveUsername(id);
+  // If _id doesn't exist in the database
   if(userResult === undefined){
+    // Send error response
     res.json({error: "ID not found"})
     return;
   }
