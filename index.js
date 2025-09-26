@@ -125,6 +125,7 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   console.log(exercisesResult);
   // Get the number of exercises for the user with _id
   let numberOfObjects = exercisesResult.length;
+  let limitedArray = [];
 
   // Get query parameters
   const { from, to, limit } = req.query;
@@ -132,7 +133,16 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   // Check if query parameters from or to are used
   if(from || to){
     let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
-  
+
+    if(limit <= numberOfObjects){
+      for(let i = 0; i < limit; i++){
+        limitedArray.push(dateRangeResult[i]);
+      }
+      console.log("This is the limitedArray " + limitedArray);
+      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      return;
+    }
+
     console.log("These are the results of dateRange.js " + dateRangeResult);
     return;
   }
