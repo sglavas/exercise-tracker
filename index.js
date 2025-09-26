@@ -125,6 +125,10 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   // Get the number of exercises for the user with _id
   let numberOfObjects = exercisesResult.length;
 
+  // Get query parameters
+  const { from, to, limit } = req.query;
+
+
   // Send response for user with _id
   res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": exercisesResult})
 
