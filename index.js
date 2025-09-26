@@ -165,7 +165,7 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
       return;
   }
 
-  // Send response for user with _id
+  // If there is no date range no limit filter, send full log as JSON response
   res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": exercisesResult})
 
 })
