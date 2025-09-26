@@ -87,8 +87,16 @@ app.post('/api/users/:_id/exercises', async (req, res) =>{
     return;
   }
 
-  console.log(userResult);
-
-  createaAndSaveExercise(id, description, duration, date);
+  // Create Date object
+  const dateObject = new Date(date);
+  // Check if date is valid
+  if(dateObject instanceof Date && !isNaN(dateObject)){
+    console.log(userResult);
+    // If valid, save the exercise document to the model
+    //createaAndSaveExercise(id, description, duration, date);
+  }else{
+    // If not valid, send error response
+    res.json({error: "Invalid date"})
+  }
 })
 
