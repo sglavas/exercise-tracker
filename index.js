@@ -135,8 +135,8 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   if(from || to){
     let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
 
-    // If the limit is lower than or equal to the number of objects
-    if(limit <= numberOfObjects){
+    // If the limit is a number and lower than or equal to the number of objects
+    if(!isNaN(limit) && limit <= numberOfObjects){
       // Loop through the array
       for(let i = 0; i < limit; i++){
         // Push the exercises to the limitedArray
@@ -148,13 +148,14 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
       return;
     }
 
+    res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
     console.log("These are the results of dateRange.js " + dateRangeResult);
     return;
   }
 
   // If neither from nor to is used as a query parameter
-  // If the limit is lower than or equal to the number of objects
-  if(limit <= numberOfObjects){
+  // If the limit is a nubmer and lower than or equal to the number of objects
+  if(!isNaN(limit) && limit <= numberOfObjects){
       // Loop through the array
       for(let i = 0; i < limit; i++){
         // Push the exercises to the limitedArray
