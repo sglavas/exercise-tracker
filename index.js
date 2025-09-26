@@ -4,7 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises } = require('./database/mongoDB');
+const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises, retrieveAllUsers } = require('./database/mongoDB');
 const { findObjectsWithinRange, onlyEndDate, onlyStartDate } = require('./utils/dateRange');
 const { isValidDate } = require('./utils/validateDate');
 
@@ -64,6 +64,17 @@ app.post('/api/users', async (req, res) =>{
     console.log(error.message);
   }
 
+})
+
+// Specify /api/users route GET method
+app.get('/api/users', async (req, res) =>{
+  try{
+    // Query the User model to get all documents
+    let usersResult = await retrieveAllUsers();
+
+    // Send JSON response with all the users
+    res.json({usersResult});
+  }catch(error){}
 })
 
 // Specify /api/users/:_id/exercises route POST method

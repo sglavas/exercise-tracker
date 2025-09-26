@@ -26,6 +26,16 @@ const retrieveUsername = async (id) =>{
     }
 }
 
+const retrieveAllUsers = async () =>{
+    try{
+        // Query the User model with an empty object
+        let result = await User.find({});
+        return result;
+    }catch(error){
+        console.log(error.message);
+    }
+}
+
 
 const createaAndSaveExercise = async (id, description, duration, date) => {
     try{
@@ -50,4 +60,4 @@ const findExercises = async (id) =>{
     }
 }
 
-module.exports = { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises }
+module.exports = { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises, retrieveAllUsers }
