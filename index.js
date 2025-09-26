@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises } = require('./database/mongoDB');
 const { findObjectsWithinRange } = require('./utils/dateRange');
+const { isValidDate } = require('./utils/validateDate');
 
 // Basic configuration
 
@@ -132,7 +133,7 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   const { from, to, limit } = req.query;
 
   // Check if query parameters from or to are used
-  if(from || to){
+  if(isValidDate(from) || isValidDate(to)){
     let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
 
     // If the limit is a number and lower than or equal to the number of objects
