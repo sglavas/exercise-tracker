@@ -4,7 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise } = require('./database/mongoDB');
+const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises } = require('./database/mongoDB');
 
 // Basic configuration
 
@@ -91,12 +91,42 @@ app.post('/api/users/:_id/exercises', async (req, res) =>{
   const dateObject = new Date(date);
   // Check if date is valid
   if(dateObject instanceof Date && !isNaN(dateObject)){
+    // Turn Date object into date string
+    let dateAsString = dateObject.toDateString();
     console.log(userResult);
     // If valid, save the exercise document to the model
-    //createaAndSaveExercise(id, description, duration, date);
+    res.json({"_id": id, "username": userResult.userName, "date": dateAsString, "duration": duration, "description": description });
+    createaAndSaveExercise(id, description, duration, dateAsString);
   }else{
     // If not valid, send error response
     res.json({error: "Invalid date"})
   }
+})
+
+
+// Specify /api/users/:_id/logs route GET method
+app.get('/api/users/:_id/logs', async (req,res) =>{
+  // Get _id route parameter
+  const id = req.params["_id"];
+
+  // Query the Exercise model with _id
+  let exercisesResult = await findExercises(id);
+  // Query the User model with _id
+  let userResult = await retrieveUsername(id);
+
+  // If document with _id does not exist
+  if(userResult === undefined){
+    // Send error response
+    res.json({"error": "Invalid user ID"});
+    return;
+  }
+
+  console.log(exercisesResult);
+  // Get the number of exercises for the user with _id
+  let numberOfObjects = exercisesResult.length;
+
+  // Send response for user with _id
+  res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": exercisesResult})
+
 })
 

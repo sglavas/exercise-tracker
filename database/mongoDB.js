@@ -17,7 +17,7 @@ const createAndSaveUsername = async (user) => {
 
 const retrieveUsername = async (id) =>{
     try{
-        // Query the database with the _id
+        // Query the User model with the _id
         let result = await User.findOne({ _id: id });
 
         return result
@@ -31,15 +31,25 @@ const createaAndSaveExercise = async (id, description, duration, date) => {
     try{
         // Create exercise document
         const exerciseEntry =  new Exercise({ description: description, duration: duration, userId: id, date: date });
-        // Save document to the exercises cluster
+        // Save document to the exercises model
         let result = await exerciseEntry.save();
         console.log(result);
         return result;
     }catch(error){
         console.log(error.message);
     }
-
-
 }
 
-module.exports = { createAndSaveUsername, retrieveUsername, createaAndSaveExercise }
+
+const findExercises = async (id) =>{
+    try{
+        // Query the Exercise model with the userId
+        let result = await Exercise.find({ userId: id });
+        console.log(result);
+        return result;
+    }catch(error){
+        console.log(error.message);
+    }
+}
+
+module.exports = { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises }
