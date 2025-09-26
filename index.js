@@ -5,7 +5,7 @@ require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises } = require('./database/mongoDB');
-const { findObjectsWithinRange } = require('./utils/dateRange');
+const { findObjectsWithinRange, onlyEndDate, onlyStartDate } = require('./utils/dateRange');
 const { isValidDate } = require('./utils/validateDate');
 
 // Basic configuration
@@ -130,22 +130,63 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   // Get query parameters
   const { from, to, limit } = req.query;
 
-  // Check if query parameters from or to are used
-  if(isValidDate(from) || isValidDate(to)){
-    let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
+  // Check if only end date is valid
+  if(!isValidDate(from) && isValidDate(to)){
+    // Filter exercises by end date
+    let dateRangeResult = onlyEndDate(to, exercisesResult);
 
     // If the limit is a number and lower than or equal to the number of objects
     if(!isNaN(limit) && limit <= numberOfObjects){
-      // Loop through the array
-      for(let i = 0; i < limit; i++){
-        // Push the exercises to the limitedArray
-        limitedArray.push(dateRangeResult[i]);
-      }
+      // Limit the size of the array
+      limitedArray = exercisesResult.slice(0, limit);
+
       // Send response with log containing exercises filtered with the date range and the limit
       res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
       return;
     }
 
+    // If not, send response with log containing exercises filtered with the date range only
+    res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
+    return;
+  }
+
+
+  // Check if only start date is valid
+  if(isValidDate(from) && !isValidDate(to)){
+    // Filter exercises by start date
+    let dateRangeResult = onlyStartDate(from, exercisesResult);
+
+    // If the limit is a number and lower than or equal to the number of objects
+    if(!isNaN(limit) && limit <= numberOfObjects){
+      // Limit the size of the array
+      limitedArray = exercisesResult.slice(0, limit);
+
+      // Send response with log containing exercises filtered with the date range and the limit
+      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      return;
+    }
+
+    // If not, send response with log containing exercises filtered with the date range only
+    res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
+    return;
+  }
+
+  // Check if query parameters from and to are both valid
+  if(isValidDate(from) && isValidDate(to)){
+    // Filter exercises by start and end date
+    let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
+
+    // If the limit is a number and lower than or equal to the number of objects
+    if(!isNaN(limit) && limit <= numberOfObjects){
+      // Limit the size of the array
+      limitedArray = dateRangeResult.slice(0, limit);
+
+      // Send response with log containing exercises filtered with the date range and the limit
+      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      return;
+    }
+
+    // If not, send response with log containing exercises filtered with the date range only
     res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
     return;
   }
@@ -153,11 +194,7 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   // If neither from nor to is used as a query parameter
   // If the limit is a nubmer and lower than or equal to the number of objects
   if(!isNaN(limit) && limit <= numberOfObjects){
-      // Loop through the array
-      for(let i = 0; i < limit; i++){
-        // Push the exercises to the limitedArray
-        limitedArray.push(exercisesResult[i]);
-      }
+      limitedArray = exercisesResult.slice(0, limit);
       // Send response with log containing exercises filtered with only the limit
       res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
       return;

@@ -1,18 +1,6 @@
 const findObjectsWithinRange = (start, end, datesArray) =>{
     // Array of exercises between start date and end date
     let resultArray = [];
-    
-    // If the start date is not specified
-    if(!start){
-        // Return the exercises schedule before the end date 
-        return onlyEndDate(end, datesArray);
-    }
-
-    // If the end date is not specified
-    if(!end){
-        // Return the exercises scheduled after the start date
-        return onlyStartDate(start, datesArray);
-    }
 
     // If we have both start date and end date, use them to create date objects 
     let startDate = new Date(start);
@@ -63,4 +51,4 @@ const onlyEndDate = (end, datesArray) => {
     return resultArray;
 }
 
-module.exports = { findObjectsWithinRange }
+module.exports = { findObjectsWithinRange, onlyEndDate, onlyStartDate }
