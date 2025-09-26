@@ -33,7 +33,6 @@ const createaAndSaveExercise = async (id, description, duration, date) => {
         const exerciseEntry =  new Exercise({ description: description, duration: duration, userId: id, date: date });
         // Save document to the exercises model
         let result = await exerciseEntry.save();
-        console.log(result);
         return result;
     }catch(error){
         console.log(error.message);
@@ -45,7 +44,6 @@ const findExercises = async (id) =>{
     try{
         // Query the Exercise model with the userId
         let result = await Exercise.find({ userId: id });
-        console.log(result);
         return result;
     }catch(error){
         console.log(error.message);

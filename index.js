@@ -95,7 +95,6 @@ app.post('/api/users/:_id/exercises', async (req, res) =>{
   if(dateObject instanceof Date && !isNaN(dateObject)){
     // Turn Date object into date string
     let dateAsString = dateObject.toDateString();
-    console.log(userResult);
     // If valid, save the exercise document to the model
     res.json({"_id": id, "username": userResult.userName, "date": dateAsString, "duration": duration, "description": description });
     createaAndSaveExercise(id, description, duration, dateAsString);
@@ -123,7 +122,6 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
     return;
   }
 
-  console.log(exercisesResult);
   // Get the number of exercises for the user with _id
   let numberOfObjects = exercisesResult.length;
   // Get the array of exericses filtered by limit
@@ -143,14 +141,12 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
         // Push the exercises to the limitedArray
         limitedArray.push(dateRangeResult[i]);
       }
-      console.log("This is the limitedArray " + limitedArray);
       // Send response with log containing exercises filtered with the date range and the limit
       res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
       return;
     }
 
     res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
-    console.log("These are the results of dateRange.js " + dateRangeResult);
     return;
   }
 
