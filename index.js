@@ -5,6 +5,7 @@ require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises } = require('./database/mongoDB');
+const { findObjectsWithinRange } = require('./utils/dateRange');
 
 // Basic configuration
 
@@ -128,6 +129,13 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   // Get query parameters
   const { from, to, limit } = req.query;
 
+  // Check if query parameters from or to are used
+  if(from || to){
+    let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
+  
+    console.log("These are the results of dateRange.js " + dateRangeResult);
+    return;
+  }
 
   // Send response for user with _id
   res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": exercisesResult})
