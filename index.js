@@ -152,6 +152,19 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
     return;
   }
 
+  // If neither from nor to is used as a query parameter
+  // If the limit is lower than or equal to the number of objects
+  if(limit <= numberOfObjects){
+      // Loop through the array
+      for(let i = 0; i < limit; i++){
+        // Push the exercises to the limitedArray
+        limitedArray.push(exercisesResult[i]);
+      }
+      // Send response with log containing exercises filtered with only the limit
+      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      return;
+  }
+
   // Send response for user with _id
   res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": exercisesResult})
 
