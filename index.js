@@ -4,9 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { createAndSaveUsername, retrieveUsername, createaAndSaveExercise, findExercises, retrieveAllUsers } = require('./database/mongoDB');
-const { findObjectsWithinRange, onlyEndDate, onlyStartDate } = require('./utils/dateRange');
-const { isValidDate } = require('./utils/validateDate');
+
 
 // Basic configuration
 
