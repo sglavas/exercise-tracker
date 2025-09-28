@@ -1,4 +1,5 @@
 const { User, Exercise } = require('./models');
+const { isValidDate } = require('../utils/validateDate');
 
 
 const createAndSaveUsername = async (user) => {
@@ -49,13 +50,35 @@ const createaAndSaveExercise = async (id, description, duration, date) => {
 }
 
 
-const findExercises = async (id) =>{
+const findExercises = async (id, start, end, limit) =>{
     try{
-        // Query the Exercise model with the userId
-        let result = await Exercise.find({ userId: id });
+        // Get MongoDB query
+        let query = {
+            userId: id,
+        };
+        
+        // If both the start and end dates are valid, add them to the query
+        if(isValidDate(start) && isValidDate(end)){
+            query.date = { $gte: start, $lte: end };
+        // If only the start date is valid, add it to the query
+        }else if(isValidDate(start)){
+            query.date = { $gte: start };
+        // If only the end date is valid, add it to the query
+        }else if(isValidDate(end)){
+            query.date = { $lte: end };
+        }
+
+        // If the limit is a valid number
+        if(!isNaN(limit)){
+            // Query the Exercise model and limit the results
+            return await Exercise.find(query).limit(limit);
+        }
+
+        // Query the Exercise model
+        let result = await Exercise.find(query);
         return result;
     }catch(error){
-        console.log(error.message);
+        console.log(error);
     }
 }
 

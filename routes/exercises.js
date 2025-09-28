@@ -3,6 +3,7 @@ const router = express.Router();
 const { retrieveUsername, createaAndSaveExercise, findExercises } = require('../database/mongoDB');
 const { findObjectsWithinRange, onlyEndDate, onlyStartDate } = require('../utils/dateRange');
 const { isValidDate } = require('../utils/validateDate');
+const populateArray = require('../utils/populateArray');
 
 // Specify /api/users/:_id/exercises route POST method
 router.post('/:_id/exercises', async (req, res) =>{
@@ -53,112 +54,32 @@ router.post('/:_id/exercises', async (req, res) =>{
     let dateAsString = dateObject.toDateString();
     // If valid, save the exercise document to the model
     res.json({"_id": id, "username": userResult.username, "date": dateAsString, "duration": validInteger, "description": description });
-    createaAndSaveExercise(id, description, validInteger, dateAsString);
+    createaAndSaveExercise(id, description, validInteger, date);
   }else{
     // If not valid, send error response
     res.json({error: "Invalid date"})
   }
 })
 
-
 // Specify /api/users/:_id/logs route GET method
-router.get('/:_id/logs', async (req,res) =>{
-  // Get _id route parameter
-  const id = req.params["_id"];
+router.get('/:_id/logs', async (req, res) =>{
+    // Get _id route parameter
+    const id = req.params["_id"];
+    // Get query parameters
+    const { from, to, limit } = req.query;
 
-  // Query the Exercise model with _id
-  let exercisesResult = await findExercises(id);
-  // Query the User model with _id
-  let userResult = await retrieveUsername(id);
+    const startDate = new Date (from);
+    const endDate = new Date(to);
 
-  // If document with _id does not exist
-  if(userResult === undefined){
-    // Send error response
-    res.json({"error": "Invalid user ID"});
-    return;
-  }
+    // Query the Exercise model with _id
+    let exercisesResult = await findExercises(id, startDate, endDate, limit);
+    // Query the User model with _id
+    let userResult = await retrieveUsername(id);
+    console.log("These are the exercises " + exercisesResult)
+    let populatedArray = populateArray(exercisesResult)
 
-  // Get the number of exercises for the user with _id
-  let numberOfObjects = exercisesResult.length;
-  // Get the array of exericses filtered by limit
-  let limitedArray = [];
-
-  // Get query parameters
-  const { from, to, limit } = req.query;
-
-  // Check if only end date is valid
-  if(!isValidDate(from) && isValidDate(to)){
-    // Filter exercises by end date
-    let dateRangeResult = onlyEndDate(to, exercisesResult);
-
-    // If the limit is a number and lower than or equal to the number of objects
-    if(!isNaN(limit) && limit <= numberOfObjects){
-      // Limit the size of the array
-      limitedArray = exercisesResult.slice(0, limit);
-
-      // Send response with log containing exercises filtered with the date range and the limit
-      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
-      return;
-    }
-
-    // If not, send response with log containing exercises filtered with the date range only
-    res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": dateRangeResult})
-    return;
-  }
-
-
-  // Check if only start date is valid
-  if(isValidDate(from) && !isValidDate(to)){
-    // Filter exercises by start date
-    let dateRangeResult = onlyStartDate(from, exercisesResult);
-
-    // If the limit is a number and lower than or equal to the number of objects
-    if(!isNaN(limit) && limit <= numberOfObjects){
-      // Limit the size of the array
-      limitedArray = exercisesResult.slice(0, limit);
-
-      // Send response with log containing exercises filtered with the date range and the limit
-      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
-      return;
-    }
-
-    // If not, send response with log containing exercises filtered with the date range only
-    res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": dateRangeResult})
-    return;
-  }
-
-  // Check if query parameters from and to are both valid
-  if(isValidDate(from) && isValidDate(to)){
-    // Filter exercises by start and end date
-    let dateRangeResult = findObjectsWithinRange(from, to, exercisesResult);
-
-    // If the limit is a number and lower than or equal to the number of objects
-    if(!isNaN(limit) && limit <= numberOfObjects){
-      // Limit the size of the array
-      limitedArray = dateRangeResult.slice(0, limit);
-
-      // Send response with log containing exercises filtered with the date range and the limit
-      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
-      return;
-    }
-
-    // If not, send response with log containing exercises filtered with the date range only
-    res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": dateRangeResult})
-    return;
-  }
-
-  // If neither from nor to is used as a query parameter
-  // If the limit is a nubmer and lower than or equal to the number of objects
-  if(!isNaN(limit) && limit <= numberOfObjects){
-      limitedArray = exercisesResult.slice(0, limit);
-      // Send response with log containing exercises filtered with only the limit
-      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
-      return;
-  }
-
-  // If there is no date range no limit filter, send full log as JSON response
-  res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": exercisesResult})
-
+    res.json({ "_id": id, "username": userResult.username, "count": exercisesResult.length, "log": populatedArray })
 })
+
 
 module.exports = router;

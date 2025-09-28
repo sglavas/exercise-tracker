@@ -21,7 +21,7 @@ const exerciseScehma = new mongoose.Schema({
         unique: false,
         required: true
     },
-    date: String
+    date: Date
 })
 
 const User = mongoose.model('User', userSchema);
