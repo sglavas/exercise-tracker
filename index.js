@@ -29,6 +29,8 @@ connectToDb();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors())
+
+// Serve static files
 app.use(express.static('public'))
 
 app.use('/', require('./routes/static'));
