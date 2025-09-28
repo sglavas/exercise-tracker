@@ -48,15 +48,15 @@ const listener = app.listen(process.env.PORT || 3000, () => {
 // Specify /api/users route POST method
 app.post('/api/users', async (req, res) =>{
   // Get username from input
-  const { username } = req.body;
+  const userNameInput = req.body.username;
 
   try{
     // Add username to the database
-    let result = await createAndSaveUsername(username);
+    let result = await createAndSaveUsername(userNameInput);
 
     // Get database username and _id
     const id = result["_id"];
-    const name = result.userName;
+    const name = result.username;
 
     // Send response with username and database _id
     res.json({"username": name, "_id": id});
@@ -73,7 +73,7 @@ app.get('/api/users', async (req, res) =>{
     let usersResult = await retrieveAllUsers();
 
     // Send JSON response with all the users
-    res.json({usersResult});
+    res.json(usersResult);
   }catch(error){}
 })
 
@@ -85,7 +85,7 @@ app.post('/api/users/:_id/exercises', async (req, res) =>{
   const { description, duration, date } = req.body;
 
   // Check if the required input fields have values
-  if(!description || !duration || !date){
+  if(!description || !duration || !id){
     // If not, send error response
     res.json({error: "Paths 'description', 'duration', and '_id' are required."})
     return;
@@ -100,15 +100,33 @@ app.post('/api/users/:_id/exercises', async (req, res) =>{
     return;
   }
 
-  // Create Date object
-  const dateObject = new Date(date);
+  // Check if duration is a valid integer
+  const validInteger = parseInt(duration);
+  // If not valid
+  if(isNaN(validInteger)){
+    // Send error response
+    res.json({error: "Duration is not valid"});
+    return;
+  }
+
+  let dateObject;
+
+  // If date is missing
+  if(!date){
+    // Use the current date
+    dateObject = new Date();
+  }else{
+    // If it is provided, use the provided date
+    dateObject = new Date(date);
+  }
+
   // Check if date is valid
   if(dateObject instanceof Date && !isNaN(dateObject)){
     // Turn Date object into date string
     let dateAsString = dateObject.toDateString();
     // If valid, save the exercise document to the model
-    res.json({"_id": id, "username": userResult.userName, "date": dateAsString, "duration": duration, "description": description });
-    createaAndSaveExercise(id, description, duration, dateAsString);
+    res.json({"_id": id, "username": userResult.username, "date": dateAsString, "duration": validInteger, "description": description });
+    createaAndSaveExercise(id, description, validInteger, dateAsString);
   }else{
     // If not valid, send error response
     res.json({error: "Invalid date"})
@@ -152,12 +170,12 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
       limitedArray = exercisesResult.slice(0, limit);
 
       // Send response with log containing exercises filtered with the date range and the limit
-      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
       return;
     }
 
     // If not, send response with log containing exercises filtered with the date range only
-    res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
+    res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": dateRangeResult})
     return;
   }
 
@@ -173,12 +191,12 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
       limitedArray = exercisesResult.slice(0, limit);
 
       // Send response with log containing exercises filtered with the date range and the limit
-      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
       return;
     }
 
     // If not, send response with log containing exercises filtered with the date range only
-    res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
+    res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": dateRangeResult})
     return;
   }
 
@@ -193,12 +211,12 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
       limitedArray = dateRangeResult.slice(0, limit);
 
       // Send response with log containing exercises filtered with the date range and the limit
-      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
       return;
     }
 
     // If not, send response with log containing exercises filtered with the date range only
-    res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": dateRangeResult})
+    res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": dateRangeResult})
     return;
   }
 
@@ -207,12 +225,12 @@ app.get('/api/users/:_id/logs', async (req,res) =>{
   if(!isNaN(limit) && limit <= numberOfObjects){
       limitedArray = exercisesResult.slice(0, limit);
       // Send response with log containing exercises filtered with only the limit
-      res.json({"_id": id, "username": userResult.userName, "count": limitedArray.length, "log": limitedArray})
+      res.json({"_id": id, "username": userResult.username, "count": limitedArray.length, "log": limitedArray})
       return;
   }
 
   // If there is no date range no limit filter, send full log as JSON response
-  res.json({"_id": id, "username": userResult.userName, "count": numberOfObjects, "log": exercisesResult})
+  res.json({"_id": id, "username": userResult.username, "count": numberOfObjects, "log": exercisesResult})
 
 })
 
