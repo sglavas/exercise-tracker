@@ -33,7 +33,9 @@ app.use(cors())
 // Serve static files
 app.use(express.static('public'))
 
+// Routes
 app.use('/', require('./routes/static'));
+app.use('/api/users', require('./routes/users'));
 
 
 
@@ -44,39 +46,7 @@ const listener = app.listen(process.env.PORT || 3000, () => {
 })
 
 
-// Get data from POST request
 
-// Specify /api/users route POST method
-app.post('/api/users', async (req, res) =>{
-  // Get username from input
-  const userNameInput = req.body.username;
-
-  try{
-    // Add username to the database
-    let result = await createAndSaveUsername(userNameInput);
-
-    // Get database username and _id
-    const id = result["_id"];
-    const name = result.username;
-
-    // Send response with username and database _id
-    res.json({"username": name, "_id": id});
-  }catch(error){
-    console.log(error.message);
-  }
-
-})
-
-// Specify /api/users route GET method
-app.get('/api/users', async (req, res) =>{
-  try{
-    // Query the User model to get all documents
-    let usersResult = await retrieveAllUsers();
-
-    // Send JSON response with all the users
-    res.json(usersResult);
-  }catch(error){}
-})
 
 // Specify /api/users/:_id/exercises route POST method
 app.post('/api/users/:_id/exercises', async (req, res) =>{
